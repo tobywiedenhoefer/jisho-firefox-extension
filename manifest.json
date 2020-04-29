@@ -16,6 +16,7 @@
   
   "permissions": [
     "menus",
-    "search"
+    "search",
+    "contextMenus"
   ]
 }

@@ -1,5 +1,5 @@
-var windowRefObj = null
-var windowPref = "menubar=no,innerWidth=500,innerHeight=500,resizable=yes"
+var windowRefObj = null;
+var windowPref = "menubar=no,innerWidth=500,innerHeight=500,resizable=yes";
 
 function langCode(lang) {
   switch (lang) {
@@ -7,16 +7,16 @@ function langCode(lang) {
       return {space: " ", code: "%20"};
     case "ja":
       return {space: "　", code: "%E3%80%80"};
-  }
+  };
 }
 
 function spaceSwitch(txt, lang) {
   var langSpace = langCode(lang);
   while (txt.includes(langSpace.space)) {
     txt.replace(langSpace.space, langSpace.code);
-  }
+  };
   return txt;
-}
+};
 
 function convertString(txt) {
   // Check if the string contains a japanese or english space
@@ -26,12 +26,30 @@ function convertString(txt) {
 
   switch(true) {
     case enCondition:
-      newText = spaceSwitch(newText, "en")
+      newText = spaceSwitch(newText, "en");
     case jaCondition:
-      newText = spaceSwitch(newtext, "ja")
+      newText = spaceSwitch(newtext, "ja");
       break;
-  }
+  };
   return newText;
+};
+
+/*
+  TO DO:
+    1. manage the lifespan of the window
+    2. is there a workaround for firefox preventing popup windows?
+        try and make appear in another tab, and prompt the user to disable blocked popups
+        with the option of 'do not show again'
+*/
+function searchSelected() {
+  var selected = window.getSelection().toString();
+  let condition = selected.includes(" ") || selected.includes("　");
+
+  if (condition) {
+    selected = convertString(selected);
+  };
+  let url = "https://www.jisho.org/search/" + selected;
+  windowRefObj = window.open(url, selected, windowPref);
 };
 
 /*
@@ -42,21 +60,4 @@ browser.menus.create({
   title: "Search Jisho",
   type: "normal",
   contexts: ["selection"]
-});
-
-/*
-Create an action for menu button
-*/
-browser.menus.onClicked.addListener((info, tab) => {
-  switch (info.menuItemId) {
-    case "jisho-button":
-      var selected = window.getSelection().toString();
-      let condition = selected.includes(" ") || selected.includes("　")
-
-      if (condition) {
-        selected = convertString(selected);
-      }
-      let url = "https://www.jisho.org/search/" + selected;
-      windowRefObj = window.open(url, windowPref)
-  }
-});
+}, searchSelected());
